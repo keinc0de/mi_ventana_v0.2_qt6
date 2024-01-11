@@ -312,7 +312,14 @@ class MiVentana(QtWidgets.QWidget, _Ui_MiVentana):
 
         gm = self.geometry()
         self.posv = PosicionVentana(self, gm.width(), gm.height())
-        self.MOD_TITULO = 12
+        self.MOD_TITULO = 11
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+
+        self.bt_x.clicked.connect(self._cerrar)
+        self.bt_mm.clicked.connect(self._maximiza_minimiza)
+        self.bt_min.clicked.connect(self.showMinimized)
+        self.bt_lock.clicked.connect(self._on_top)
+        self.__config_uno()
 
     def resizeEvent(self, e):
         rc = self.rect()
@@ -336,7 +343,60 @@ class MiVentana(QtWidgets.QWidget, _Ui_MiVentana):
     def _cerrar(self):
         self.close()
 
+    def _maximiza_minimiza(self):
+        if self.isMaximized():
+            self.showNormal()
+            mg, ico = 0, self.pix('vf')
+        else:
+            self.showMaximized()
+            mg, ico = 0, self.pix('vc')
+        self.asigna_icono_a_boton(self.bt_mm, ico)
+        self.setContentsMargins(0,mg,0,0)
 
+    def asigna_color_barra(self, fg='#F0EAD6', bg='rgba(0,0,0,0)'):
+        self.fm_top.setStyleSheet(f'background-color:{bg};color:{fg}')
+
+    def _on_top(self):
+        b = self.bt_lock.isChecked()
+        self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint, b)
+        self.showNormal()
+
+    def mousePressEvent(self, e):
+        if e.button()==QtCore.Qt.MouseButton.RightButton:
+            self.cur_pos = e.globalPosition().toPoint()
+
+    def mouseMoveEvent(self, e):
+        if self.isMaximized():
+            return
+        try:
+            if e.buttons()==QtCore.Qt.MouseButton.RightButton:
+                self.np = QtCore.QPoint(e.globalPosition().toPoint() - self.cur_pos)
+                x, y = self.cur_pos.x(), self.cur_pos.y()
+                self.move(x+self.np.x(), y+self.np.y())
+                self.cur_pos = e.globalPosition().toPoint()
+        except Exception as err:
+            print(err)
+
+    def agrega_menu(self):
+        self.menu_bt = QtWidgets.QMenu(self)
+        self.menu_bt.addAction('&UNO', self.accion1)
+        self.bt_icono.setMenu(self.menu_bt)
+
+    def accion1(self):
+        print('accion uno')
+        # self.posv.arriba.derecha()
+        self.ajusta_derecha()
+
+    def ajusta_derecha(self, proporcion=2/5):
+        wp, hp = self.posv.obten_resolusion_pantalla()
+        # self.posv.arriba.derecha()
+        self.setGeometry(0,0, int(wp*proporcion), int(hp))
+
+    def __config_uno(self):
+        bg1 = '#1C1B24'
+        self.asigna_nombre_al_programa('MI VENTANA 2',bg=bg1)
+        self.asigna_color_barra(bg=bg1)
+        self.setStyleSheet(f'background-color:{bg1};')
 
 
 if __name__=="__main__":
