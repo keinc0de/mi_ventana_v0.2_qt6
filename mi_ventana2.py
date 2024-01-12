@@ -92,8 +92,8 @@ class _Ui_MiVentana(object):
         self.bt_lock.setMaximumSize(QtCore.QSize(25, 18))
         self.bt_lock.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(self.pix('lock'), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        icon1.addPixmap(self.pix('unlock'), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.On)
+        icon1.addPixmap(self.pix('unlock'), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(self.pix('lock'), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.On)
         self.bt_lock.setIcon(icon1)
         self.bt_lock.setCheckable(True)
         self.bt_lock.setChecked(False)
@@ -156,6 +156,8 @@ class _Ui_MiVentana(object):
         self.vly_principal.setStretch(1, 20)
         self.verticalLayout_3.addLayout(self.vly_principal)
 
+        self.horizontalLayout.setSpacing(0)
+
     def _carga_iconos(self):
         self.icos = {
             'x':'''iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdklEQVR4nGNgGGzgJRSTKgdR8
@@ -205,7 +207,12 @@ class _Ui_MiVentana(object):
             'folder':'''iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiUlEQVR4nGNgoBAwQunF
             DAwMgljk30PFffAZsPjxi7MxeCzZKithzIDLEBaYzbISxluxKXj84qw3AwPDZAYGhi1YpH0YGRgYtkAV
             kQxkJYy3MpGjkYGB4RWMQa4BYlD6PbkGwIAgpQaQ7YVhZAA8FuaQaYAgEwMkw6SQawgsN8LSOSz34QPI
-            anwAXqYaALRP9w0AAAAASUVORK5CYII='''
+            anwAXqYaALRP9w0AAAAASUVORK5CYII=''',
+            'cuadro c':'''iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1ElEQVR4nM2TsQrCMB
+            RFT7UgCt0jkrW75CcE+y1+jL/h2n5G6N41iHETBF0dfNW02BKdvEvC456bkJeX8FbJdyoAkhZ23jZAFg
+            lftTI5UCQBnGtlomjnLUCjlclTqWUCFzEBWpnSeZsBpEH9LmsNzGQ/7bE3YB14OwEZUDtvj8B24PCdVq
+            YGzsAFYNIzLEZggL14XuoHfK3/C7gB1Yi/Es9LYReuwEZeuRkIWPFs4+FTwFzW9cgNQu+lE+C8RSsTNV
+            DylYHuMJ1i4FZamSUyTK1+GucH2d02d/lbtfAAAAAASUVORK5CYII='''
         }
         return self.icos
     
@@ -320,6 +327,7 @@ class MiVentana(QtWidgets.QWidget, _Ui_MiVentana):
         self.bt_min.clicked.connect(self.showMinimized)
         self.bt_lock.clicked.connect(self._on_top)
         self.__config_uno()
+        self.ancho_alto(450, 250)
 
     def resizeEvent(self, e):
         rc = self.rect()
@@ -383,20 +391,36 @@ class MiVentana(QtWidgets.QWidget, _Ui_MiVentana):
         self.bt_icono.setMenu(self.menu_bt)
 
     def accion1(self):
-        print('accion uno')
-        # self.posv.arriba.derecha()
         self.ajusta_derecha()
 
     def ajusta_derecha(self, proporcion=2/5):
         wp, hp = self.posv.obten_resolusion_pantalla()
-        # self.posv.arriba.derecha()
         self.setGeometry(0,0, int(wp*proporcion), int(hp))
+
+    def ajusta_izquierda(self, proporcion=2/5):
+        wp, hp = self.posv.obten_resolusion_pantalla()
+        gm = self.geometry()
+        w, h = gm.width(), gm.height()
+        self.setGeometry(wp-w,0, int(wp*proporcion), int(hp))
 
     def __config_uno(self):
         bg1 = '#1C1B24'
         self.asigna_nombre_al_programa('MI VENTANA 2',bg=bg1)
         self.asigna_color_barra(bg=bg1)
         self.setStyleSheet(f'background-color:{bg1};')
+        self.asigna_icono_al_programa(self.pix('T'))
+
+    def agrega_widget_a_la_barra_derecha(self, wg):
+        self.hly_top_derecha.addWidget(wg)
+
+    def ancho_alto(self, w, h):
+        self.W = w
+        self.H = h
+        self.resize(self.W, self.H)
+
+    def restaura(self):
+        self.resize(self.W, self.H)
+        self.posv.centrar()
 
 
 if __name__=="__main__":
